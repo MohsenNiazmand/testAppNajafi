@@ -12,6 +12,8 @@ import 'package:test_app_najafi/features/home/domain/usecases/update_todo_use_ca
 part 'todo_provider.g.dart';
 
 final todosListProvider = StateProvider<List<Todo>>((ref) => []);
+final todoActionLoadingProvider = StateProvider<bool>((ref) => false);
+final isLoadMoreLoadingProvider = StateProvider<bool>((ref) => false);
 
 @riverpod
 class TodoProvider extends _$TodoProvider {
@@ -20,11 +22,12 @@ class TodoProvider extends _$TodoProvider {
     return const DataInitial();
   }
 
-  Future<void> fetchTodos({int? limit, int? skip}) async {
+  Future<void> fetchTodos({int limit = 15}) async {
+    ref.read(todoActionLoadingProvider.notifier).state = true;
     state = const DataLoading();
 
     final result = await getIt<GetTodosUseCase>().call(
-      params: GetTodosParams(limit: limit, skip: skip),
+      params: GetTodosParams(limit: limit, skip: 0),
     );
 
     result.fold(
@@ -36,9 +39,48 @@ class TodoProvider extends _$TodoProvider {
         state = DataSuccess(response.data!);
       },
     );
+    
+    ref.read(todoActionLoadingProvider.notifier).state = false;
+  }
+
+  Future<void> loadMore() async {
+    final currentData = state.data;
+    if (currentData == null) return;
+    
+    final currentTodos = ref.read(todosListProvider);
+    if (currentTodos.length >= currentData.total) return;
+    if (ref.read(isLoadMoreLoadingProvider)) return;
+
+    ref.read(isLoadMoreLoadingProvider.notifier).state = true;
+
+    final result = await getIt<GetTodosUseCase>().call(
+      params: GetTodosParams(
+        limit: currentData.limit,
+        skip: currentTodos.length,
+      ),
+    );
+
+    result.fold(
+      (failure) {
+        // Silent fail for load more or handle accordingly
+      },
+      (response) {
+        if (response.data != null) {
+          ref.read(todosListProvider.notifier).state = [
+            ...currentTodos,
+            ...response.data!.todos,
+          ];
+          // Update the state with new metadata (total, skip, limit)
+          state = DataSuccess(response.data!);
+        }
+      },
+    );
+
+    ref.read(isLoadMoreLoadingProvider.notifier).state = false;
   }
 
   Future<void> addTodo(String text) async {
+    ref.read(todoActionLoadingProvider.notifier).state = true;
     final result = await getIt<CreateTodoUseCase>().call(
       params: CreateTodoParams(todo: text, completed: false, userId: 5),
     );
@@ -56,9 +98,11 @@ class TodoProvider extends _$TodoProvider {
         }
       },
     );
+    ref.read(todoActionLoadingProvider.notifier).state = false;
   }
 
   Future<void> toggleTodo(Todo todo) async {
+    ref.read(todoActionLoadingProvider.notifier).state = true;
     final updatedTodo = todo.copyWith(completed: !(todo.completed ?? false));
     
     final result = await getIt<UpdateTodoUseCase>().call(
@@ -78,9 +122,11 @@ class TodoProvider extends _$TodoProvider {
         }).toList();
       },
     );
+    ref.read(todoActionLoadingProvider.notifier).state = false;
   }
 
   Future<void> deleteTodo(int id) async {
+    ref.read(todoActionLoadingProvider.notifier).state = true;
     final result = await getIt<DeleteTodoUseCase>().call(
       params: DeleteTodoParams(id: id),
     );
@@ -94,5 +140,6 @@ class TodoProvider extends _$TodoProvider {
             currentList.where((item) => item.id != id).toList();
       },
     );
+    ref.read(todoActionLoadingProvider.notifier).state = false;
   }
 }

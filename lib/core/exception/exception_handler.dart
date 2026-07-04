@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:test_app_najafi/shared/presentation/widgets/primary_toast.dart';
 
 class ExceptionHandler {
   dynamic get responseData => exception?.response?.data;
@@ -12,64 +11,23 @@ class ExceptionHandler {
   }) {
     final responseData = exception?.response?.data;
     if (messageException != null) {
-      // PrimaryToast.show(message);
+      PrimaryToast.show(message);
     } else if (responseData != null) {
       String message='';
       message = responseData['message'] as String;
 
-      final emailErrorField=responseData['data']['email'];
-      final universityErrorField=responseData['data']['funiversity'];
-      final passwordErrorField=responseData['data']['password'];
-      final oldPasswordErrorField=responseData['data']['old_password'];
-      final profileFileErrorField=responseData['data']['profile_file'];
-      if(emailErrorField!=null){
-        final emailError= ((responseData['data']['email']) as List<dynamic>).first;
-        if(emailError!=null){
-          message=emailError as String;
-        }
-      }
-      if(universityErrorField!=null){
-        final fUniError= ((responseData['data']['funiversity']) as List<dynamic>).first;
-        if(fUniError!=null){
-          message=fUniError as String;
-        }
-      }
 
-      if(passwordErrorField!=null){
-        final passwordError= ((responseData['data']['password']) as List<dynamic>).first;
-        if(passwordError!=null){
-          message=passwordError as String;
-        }
-      }
-
-      if(oldPasswordErrorField!=null){
-        final oldPasswordError= ((responseData['data']['old_password']) as List<dynamic>).first;
-        if(oldPasswordError!=null){
-          message=oldPasswordError as String;
-        }
-      }
-
-      if(profileFileErrorField!=null){
-        final profileFileError= ((responseData['data']['profile_file']) as List<dynamic>).first;
-        if(profileFileError!=null){
-          message=profileFileError as String;
-        }
-      }
-
-
-
-
-      // PrimaryToast.show(message);
+      PrimaryToast.show(message);
     } else if (responseData == null) {
-      // PrimaryToast.show('Connection Failed, Try again later!');
+      PrimaryToast.show('Connection Failed, Try again later!');
     } else {
-      // PrimaryToast.show('An unexpected error occurred!');
+      PrimaryToast.show('An unexpected error occurred!');
     }
 
     if (exception?.response?.statusCode == 500) {
-      // PrimaryToast.show(
-      //   'Server is busy now,try again later!',
-      // );
+      PrimaryToast.show(
+        'Server is busy now,try again later!',
+      );
     }
     print;
   }

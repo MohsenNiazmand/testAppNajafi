@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:test_app_najafi/core/extentions/app_localization_helper.dart';
 import 'package:test_app_najafi/domain/enums/enums.dart';
 import 'package:test_app_najafi/features/home/presentation/providers/todo_provider.dart';
+import 'package:test_app_najafi/shared/widgets/page_handler_widget.dart';
 
 class HomePage extends HookConsumerWidget {
   const HomePage({super.key});
@@ -12,6 +13,9 @@ class HomePage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final todoState = ref.watch(todoProviderProvider);
     final todos = ref.watch(todosListProvider);
+    final actionLoading = ref.watch(todoActionLoadingProvider);
+    final isLoadMoreLoading = ref.watch(isLoadMoreLoadingProvider);
+    final scrollController = useScrollController();
 
     useEffect(() {
       Future.microtask(() {
@@ -24,13 +28,34 @@ class HomePage extends HookConsumerWidget {
       appBar: AppBar(
         title: Text(context.tr.appTitle),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () => ref.read(todoProviderProvider.notifier).fetchTodos(),
+          ),
+        ],
       ),
       body: SafeArea(
-        child: Column(
+        child: Stack(
           children: [
-            Expanded(
-              child: _buildBody(context, ref, todoState, todos),
+            PageHandlerWidget(
+              scrollController: scrollController,
+              onRefresh: () async {
+                await ref.read(todoProviderProvider.notifier).fetchTodos();
+              },
+              onPaginate: () async {
+                await ref.read(todoProviderProvider.notifier).loadMore();
+              },
+              loading: isLoadMoreLoading,
+              child: _buildBody(context, ref, todoState, todos, scrollController),
             ),
+            if (actionLoading)
+              Container(
+                color: Colors.black26,
+                child: const Center(
+                  child: CircularProgressIndicator(),
+                ),
+              ),
           ],
         ),
       ),
@@ -41,33 +66,58 @@ class HomePage extends HookConsumerWidget {
     );
   }
 
-  Widget _buildBody(BuildContext context, WidgetRef ref, todoState, todos) {
+  Widget _buildBody(
+    BuildContext context,
+    WidgetRef ref,
+    todoState,
+    todos,
+    ScrollController scrollController,
+  ) {
     if (todoState.stateChecker == StateCheckerEnum.loading && todos.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
 
     if (todoState.stateChecker == StateCheckerEnum.failed && todos.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(todoState.error?.message ?? 'Error occurred'),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () => ref.read(todoProviderProvider.notifier).fetchTodos(),
-              child: const Text('Retry'),
+      return ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        children: [
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.7,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(todoState.error?.message ?? 'Error occurred'),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () =>
+                        ref.read(todoProviderProvider.notifier).fetchTodos(),
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
             ),
-          ],
-        ),
+          ),
+        ],
       );
     }
 
-    if (todos.isEmpty) {
-      return const Center(child: Text('No Todos available'));
+    if (todos.isEmpty && todoState.stateChecker != StateCheckerEnum.loading) {
+      return ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        children: [
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.7,
+            child: const Center(child: Text('No Todos available')),
+          ),
+        ],
+      );
     }
 
     return ListView.builder(
+      controller: scrollController,
       padding: const EdgeInsets.all(8),
+      physics: const AlwaysScrollableScrollPhysics(),
       itemCount: todos.length,
       itemBuilder: (context, index) {
         final todo = todos[index];
@@ -76,7 +126,8 @@ class HomePage extends HookConsumerWidget {
             title: Text(
               todo.todo,
               style: TextStyle(
-                decoration: (todo.completed) ? TextDecoration.lineThrough : null,
+                decoration:
+                    (todo.completed) ? TextDecoration.lineThrough : null,
               ),
             ),
             leading: Checkbox(
@@ -119,7 +170,9 @@ class HomePage extends HookConsumerWidget {
             ElevatedButton(
               onPressed: () {
                 if (controller.text.isNotEmpty) {
-                  ref.read(todoProviderProvider.notifier).addTodo(controller.text);
+                  ref
+                      .read(todoProviderProvider.notifier)
+                      .addTodo(controller.text);
                   Navigator.pop(context);
                 }
               },
