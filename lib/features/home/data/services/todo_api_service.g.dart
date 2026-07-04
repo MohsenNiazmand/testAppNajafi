@@ -10,10 +10,10 @@ part of 'todo_api_service.dart';
 
 class _TodoApiService implements TodoApiService {
   _TodoApiService(
-      this._dio, {
-        this.baseUrl,
-        this.errorLogger,
-      }) {
+    this._dio, {
+    this.baseUrl,
+    this.errorLogger,
+  }) {
     baseUrl ??= Constants.baseUrl;
   }
 
@@ -24,44 +24,38 @@ class _TodoApiService implements TodoApiService {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<ApiResponse<TodosResponse>> getTodos({
+  Future<TodosResponse> getTodos({
     int? limit,
     int? skip,
   }) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{
+      if (limit != null) r'limit': limit,
+      if (skip != null) r'skip': skip,
+    };
     queryParameters.removeWhere((k, v) => v == null);
-    if (limit != null) {
-      queryParameters['limit'] = limit;
-    }
-    if (skip != null) {
-      queryParameters['skip'] = skip;
-    }
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<ApiResponse<TodosResponse>>(Options(
+    final _options = _setStreamType<TodosResponse>(Options(
       method: 'GET',
       headers: _headers,
       extra: _extra,
     )
         .compose(
-      _dio.options,
-      '/todos',
-      queryParameters: queryParameters,
-      data: _data,
-    )
+          _dio.options,
+          '/todos',
+          queryParameters: queryParameters,
+          data: _data,
+        )
         .copyWith(
-        baseUrl: _combineBaseUrls(
+            baseUrl: _combineBaseUrls(
           _dio.options.baseUrl,
           baseUrl,
         )));
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ApiResponse<TodosResponse> _value;
+    late TodosResponse _value;
     try {
-      _value = ApiResponse<TodosResponse>.fromJson(
-        _result.data!,
-            (json) => TodosResponse.fromJson(json as Map<String, dynamic>),
-      );
+      _value = TodosResponse.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
@@ -70,37 +64,32 @@ class _TodoApiService implements TodoApiService {
   }
 
   @override
-  Future<ApiResponse<Todo>> createTodo(
-      Map<String, dynamic> body,
-      ) async {
+  Future<Todo> createTodo(Map<String, dynamic> body) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
     _data.addAll(body);
-    final _options = _setStreamType<ApiResponse<Todo>>(Options(
+    final _options = _setStreamType<Todo>(Options(
       method: 'POST',
       headers: _headers,
       extra: _extra,
     )
         .compose(
-      _dio.options,
-      '/todos/add',
-      queryParameters: queryParameters,
-      data: _data,
-    )
+          _dio.options,
+          '/todos/add',
+          queryParameters: queryParameters,
+          data: _data,
+        )
         .copyWith(
-        baseUrl: _combineBaseUrls(
+            baseUrl: _combineBaseUrls(
           _dio.options.baseUrl,
           baseUrl,
         )));
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ApiResponse<Todo> _value;
+    late Todo _value;
     try {
-      _value = ApiResponse<Todo>.fromJson(
-        _result.data!,
-            (json) => Todo.fromJson(json as Map<String, dynamic>),
-      );
+      _value = Todo.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
@@ -109,38 +98,35 @@ class _TodoApiService implements TodoApiService {
   }
 
   @override
-  Future<ApiResponse<Todo>> updateTodo(
-      int id,
-      Map<String, dynamic> body,
-      ) async {
+  Future<Todo> updateTodo(
+    int id,
+    Map<String, dynamic> body,
+  ) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
     _data.addAll(body);
-    final _options = _setStreamType<ApiResponse<Todo>>(Options(
+    final _options = _setStreamType<Todo>(Options(
       method: 'PUT',
       headers: _headers,
       extra: _extra,
     )
         .compose(
-      _dio.options,
-      '/todos/${id}',
-      queryParameters: queryParameters,
-      data: _data,
-    )
+          _dio.options,
+          '/todos/${id}',
+          queryParameters: queryParameters,
+          data: _data,
+        )
         .copyWith(
-        baseUrl: _combineBaseUrls(
+            baseUrl: _combineBaseUrls(
           _dio.options.baseUrl,
           baseUrl,
         )));
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ApiResponse<Todo> _value;
+    late Todo _value;
     try {
-      _value = ApiResponse<Todo>.fromJson(
-        _result.data!,
-            (json) => Todo.fromJson(json as Map<String, dynamic>),
-      );
+      _value = Todo.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
@@ -149,36 +135,31 @@ class _TodoApiService implements TodoApiService {
   }
 
   @override
-  Future<ApiResponse<Todo>> deleteTodo(
-      int id,
-      ) async {
+  Future<Todo> deleteTodo(int id) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<ApiResponse<Todo>>(Options(
+    final _options = _setStreamType<Todo>(Options(
       method: 'DELETE',
       headers: _headers,
       extra: _extra,
     )
         .compose(
-      _dio.options,
-      '/todos/${id}',
-      queryParameters: queryParameters,
-      data: _data,
-    )
+          _dio.options,
+          '/todos/${id}',
+          queryParameters: queryParameters,
+          data: _data,
+        )
         .copyWith(
-        baseUrl: _combineBaseUrls(
+            baseUrl: _combineBaseUrls(
           _dio.options.baseUrl,
           baseUrl,
         )));
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ApiResponse<Todo> _value;
+    late Todo _value;
     try {
-      _value = ApiResponse<Todo>.fromJson(
-        _result.data!,
-            (json) => Todo.fromJson(json as Map<String, dynamic>),
-      );
+      _value = Todo.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
@@ -200,9 +181,9 @@ class _TodoApiService implements TodoApiService {
   }
 
   String _combineBaseUrls(
-      String dioBaseUrl,
-      String? baseUrl,
-      ) {
+    String dioBaseUrl,
+    String? baseUrl,
+  ) {
     if (baseUrl == null || baseUrl.trim().isEmpty) {
       return dioBaseUrl;
     }

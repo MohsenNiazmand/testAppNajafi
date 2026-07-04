@@ -10,36 +10,36 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.8
-  flutter_riverpod: ^3.1.0
-  dio: ^5.9.0
-  get_it: ^9.2.0
-  flutter_hooks: ^0.21.3+1
-  hooks_riverpod: ^3.1.0
-  logger: ^2.6.2
-  retrofit: ^4.9.2
-  json_annotation: ^4.9.0
-  go_router: ^17.0.1
+  cupertino_icons:
+  flutter_riverpod:
+  dio:
+  get_it:
+  flutter_hooks:
+  hooks_riverpod:
+  logger:
+  retrofit:
+  json_annotation:
+  go_router:
   flutter_localizations:
     sdk: flutter
   intl: any
-  dartz: ^0.10.1
-  riverpod_annotation: ^4.0.0
-  curl_logger_dio_interceptor: ^1.0.1
-  very_good_analysis: ^10.0.0
-  flutter_secure_storage: ^10.0.0
-  flutter_form_builder: ^10.2.0
-  form_builder_validators: ^11.2.0
-  flutter_svg: ^2.0.17
+  dartz:
+  riverpod_annotation:
+  curl_logger_dio_interceptor:
+  very_good_analysis:
+  flutter_secure_storage:
+  flutter_form_builder:
+  form_builder_validators:
+  flutter_svg:
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0
-  retrofit_generator: ^10.0.1
-  build_runner: ^2.6.0
-  json_serializable: ^6.10.0
-  riverpod_generator: ^4.0.0
+  flutter_lints:
+#  retrofit_generator:
+  build_runner:
+  json_serializable:
+  riverpod_generator:
 
 flutter:
   uses-material-design: true

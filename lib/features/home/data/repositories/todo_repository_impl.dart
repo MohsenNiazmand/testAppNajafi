@@ -23,16 +23,8 @@ class TodoRepositoryImpl extends TodoRepository {
         limit: limit,
         skip: skip,
       );
-
-      if (result.statusCode==200) {
-        return Right(result);
-      } else {
-        final errorMessage = result.message;
-        final exceptionHandler = ExceptionHandler(
-          messageException: errorMessage,
-        );
-        return Left(exceptionHandler);
-      }
+      // DummyJson doesn't wrap data in a 'data' field, so we manually wrap it for our app standard
+      return Right(ApiResponse.success(result));
     } on DioException catch (e) {
       return Left(ExceptionHandler(dioException: e));
     } catch (e) {
@@ -40,23 +32,13 @@ class TodoRepositoryImpl extends TodoRepository {
     }
   }
 
-
   @override
   Future<Either<ExceptionHandler, ApiResponse<Todo>>> createTodo(
       Map<String, dynamic> body,
       ) async {
     try {
       final result = await _apiService.createTodo(body);
-
-      if (result.statusCode==200)  {
-        return Right(result);
-      } else {
-        final errorMessage = result.message;
-        final exceptionHandler = ExceptionHandler(
-          messageException: errorMessage,
-        );
-        return Left(exceptionHandler);
-      }
+      return Right(ApiResponse.success(result));
     } on DioException catch (e) {
       return Left(ExceptionHandler(dioException: e));
     } catch (e) {
@@ -71,16 +53,7 @@ class TodoRepositoryImpl extends TodoRepository {
       ) async {
     try {
       final result = await _apiService.updateTodo(id, body);
-
-      if (result.statusCode==200)  {
-        return Right(result);
-      } else {
-        final errorMessage = result.message;
-        final exceptionHandler = ExceptionHandler(
-          messageException: errorMessage,
-        );
-        return Left(exceptionHandler);
-      }
+      return Right(ApiResponse.success(result));
     } on DioException catch (e) {
       return Left(ExceptionHandler(dioException: e));
     } catch (e) {
@@ -94,16 +67,7 @@ class TodoRepositoryImpl extends TodoRepository {
       ) async {
     try {
       final result = await _apiService.deleteTodo(id);
-
-      if (result.statusCode==200) {
-        return Right(result);
-      } else {
-        final errorMessage = result.message;
-        final exceptionHandler = ExceptionHandler(
-          messageException: errorMessage,
-        );
-        return Left(exceptionHandler);
-      }
+      return Right(ApiResponse.success(result));
     } on DioException catch (e) {
       return Left(ExceptionHandler(dioException: e));
     } catch (e) {
